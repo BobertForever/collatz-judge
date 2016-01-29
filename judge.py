@@ -18,7 +18,7 @@ class Judge:
 
     docker_name = 'sandbox'
     runtime = 'python3'
-    timeout = 15
+    timeout = 30
 
     def __init__(self):
         self.queue = queue.Queue()
@@ -85,8 +85,6 @@ class Judge:
 
         # Create a timer to watch for timeouts
         def timeout_func():
-            import sys
-            print("Hello", file=sys.stderr)
             ran_to_completion = False
             try:
                 subprocess.call(['docker', 'rm', '-f', docker_name])
