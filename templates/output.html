@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3 col-md-offset-3">
+        <h3>Expected output</h3>
+        <div class="well">
+          {{ expected }}
+        </div>
+        <a class="btn btn-default" href="{{ url_for('view_submission', id=id) }}" role="button">Back</a>
+        <div style="height: 100px"></div>
+      </div>
+      <div class="col-md-3">
+        <h3>Actual output</h3>
+        <div class="well">
+          {{ actual }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/submit.js') }}"></script>
+{% endblock %}

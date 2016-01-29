@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, Markup
 from mongoengine import connect
 from judge import Judge
 from submission import Submission
@@ -33,7 +33,20 @@ def submit():
 @app.route("/submission/<id>")
 def view_submission(id):
     submission = Submission.objects(id=id).first()
-    return submission.submission_text
+    return render_template('submission.html', submission=submission)
+
+def newline_to_br(text):
+    tmp = ""
+    for line in text.split('\n'):
+        tmp += Markup.escape(line) + Markup('<br />')
+    return tmp
+
+@app.route("/submission/<id>/out")
+def view_submission_output(id):
+    submission = Submission.objects(id=id).first()
+    expected = newline_to_br(submission.expected_out)
+    actual = newline_to_br(submission.actual_out)
+    return render_template('output.html', expected=expected, actual=actual, id=submission.id)
 
 @app.route("/submission/<id>.json")
 def submission_json(id):

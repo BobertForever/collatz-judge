@@ -5,6 +5,7 @@ import threading
 import subprocess
 import uuid
 import shlex
+from collatz import Collatz
 from submission import Submission
 
 """
@@ -21,6 +22,7 @@ class Judge:
 
     def __init__(self):
         self.queue = queue.Queue()
+        self.collatz = Collatz()
         threading.Thread(target=self.await_submission).start()
 
     """
@@ -60,21 +62,31 @@ class Judge:
             'run',
             '--name="%s"' % docker_name,
             '-v',
-            '"%s":/judging_dir:ro' % file_path,
+            '%s:/judging_dir:ro' % os.getcwd(),
             '-w',
             '/judging_dir',
+            '-a',
+            'stdin',
+            '-a',
+            'stdout',
+            '-i',
             self.docker_name,
             self.runtime,
-            file_name
+            f.name
         ]
 
         # Generate a test
-        test_in, test_out = Collatz.generate_tests()
+        test_in, test_out = self.collatz.generate_tests()
+        test_in_file = tempfile.TemporaryFile()
+        test_in_file.write(test_in.encode("UTF-8"))
+        test_in_file.seek(0)
 
         ran_to_completion = True
 
         # Create a timer to watch for timeouts
         def timeout_func():
+            import sys
+            print("Hello", file=sys.stderr)
             ran_to_completion = False
             try:
                 subprocess.call(['docker', 'rm', '-f', docker_name])
@@ -86,7 +98,7 @@ class Judge:
         # Run the docker test command in a new process
         runner = subprocess.Popen(
             shlex.split(' '.join(docker_cmd)),
-            stdin=test_in,
+            stdin=test_in_file,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
@@ -94,10 +106,12 @@ class Judge:
 
         # We're done with everything, stop the timer
         timer.cancel()
+        f.close()
+        os.remove(f.name)
 
         # Verify the program's output if it completed
         if ran_to_completion:
-            verify_output(submission, stdout, test_out)
+            self.verify_output(submission, stdout.decode('ascii'), test_out)
         else:
             submission.status = Submission.TIMEOUT
             submission.save()
@@ -107,8 +121,8 @@ class Judge:
     against docker
     """
     def prepare_submission(self, submission):
-        fp = tempfile.NamedTemporaryFile()
-        fp.write(submission.submission_text.encode("UTF-8"))
+        fp = open('tmp.py', 'w+')
+        fp.write(submission.submission_text)
         fp.seek(0)
         return fp
 
