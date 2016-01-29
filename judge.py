@@ -52,7 +52,7 @@ class Judge:
         file_name = os.path.basename(f.name)
 
         # The judge now has the submission
-        submission.state = Submission.RUNNING
+        submission.status = Submission.RUNNING
         submission.save()
 
         # Setup the docker command we're going to run to test the submission
