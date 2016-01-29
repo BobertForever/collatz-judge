@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from mongoengine import connect
 from judge import Judge
 
@@ -10,7 +10,7 @@ judge = Judge()
 
 @app.route("/")
 def hello():
-    return "Hello World!"
+    return render_template('submit.html')
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

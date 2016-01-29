@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="container-fluid">
+    <div class="row">
+      <form>
+        <div class="form-group" id="editor">
+          <label for="code">collatz.py</label>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    var cm = CodeMirror(document.getElementById('editor'), {
+      mode: 'python',
+    });
+  </script>
+{% endblock %}
