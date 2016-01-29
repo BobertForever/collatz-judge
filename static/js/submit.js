@@ -2,6 +2,7 @@ var cm = CodeMirror($('#editor').get(0), {
   mode: 'python',
 });
 
-$('#submit').on('click', function() {
-  alert(cm.getValue());
+// When we submit, take the code from codemirror and put it in the form
+$('#submit').on('click', function(e) {
+  $('#code').val(cm.getValue());
 }.bind(cm));
