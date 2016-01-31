@@ -81,11 +81,11 @@ class Judge:
         test_in_file.write(test_in.encode("UTF-8"))
         test_in_file.seek(0)
 
-        ran_to_completion = True
+        ran_to_completion = [True]
 
         # Create a timer to watch for timeouts
         def timeout_func():
-            ran_to_completion = False
+            ran_to_completion[0] = False
             try:
                 subprocess.call(['docker', 'rm', '-f', docker_name])
             except:
@@ -108,7 +108,7 @@ class Judge:
         os.remove(f.name)
 
         # Verify the program's output if it completed
-        if ran_to_completion:
+        if ran_to_completion[0]:
             self.verify_output(submission, stdout.decode('ascii'), test_out)
         else:
             submission.status = Submission.TIMEOUT
